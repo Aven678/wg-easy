@@ -14,10 +14,11 @@ const {
   WG_PATH,
   WG_HOST,
   WG_PORT,
+  WG_NAT,
   WG_DEFAULT_DNS,
   WG_DEFAULT_ADDRESS,
   WG_PERSISTENT_KEEPALIVE,
-  WG_ALLOWED_IPS,
+  WG_ALLOWED_IPS
 } = require('../config');
 
 module.exports = class WireGuard {
@@ -56,10 +57,21 @@ module.exports = class WireGuard {
         await this.__saveConfig(config);
         await Util.exec('wg-quick down wg0').catch(() => { });
         await Util.exec('wg-quick up wg0');
-        await Util.exec(`iptables -t nat -A POSTROUTING -s ${WG_DEFAULT_ADDRESS.replace('x', '0')}/24 -o eth0 -j MASQUERADE`);
-        await Util.exec('iptables -A INPUT -p udp -m udp --dport 51820 -j ACCEPT');
-        await Util.exec('iptables -A FORWARD -i wg0 -j ACCEPT');
-        await Util.exec('iptables -A FORWARD -o wg0 -j ACCEPT');
+        await Util.exec('echo 1 >> /proc/sys/net/ipv4/conf/all/proxy_arp');
+
+        if (WG_NAT) {
+          await Util.exec(`iptables -t nat -A POSTROUTING -s ${WG_DEFAULT_ADDRESS.replace('x', '0')}/24 -o ens3 -j MASQUERADE`);
+          await Util.exec('iptables -A INPUT -p udp -m udp --dport 51820 -j ACCEPT');
+          await Util.exec('iptables -A FORWARD -i wg0 -j ACCEPT');
+          await Util.exec('iptables -A FORWARD -o wg0 -j ACCEPT');
+        }
+
+        if (config.clients.length > 0) {
+          config.clients.forEach(client => {
+            if (!client.address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route add ${client.address}/32 dev wg0`);
+          })
+        }
+        
         await this.__syncConfig();
 
         return config;
@@ -242,12 +254,14 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
     };
 
     config.clients[clientId] = client;
+    if (!client.address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route add ${client.address}/32 dev wg0`);
 
     await this.saveConfig();
   }
 
   async deleteClient({ clientId }) {
     const config = await this.getConfig();
+    if (!client.address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route del ${client.address}/32 dev wg0`);
 
     if (config.clients[clientId]) {
       delete config.clients[clientId];
@@ -260,6 +274,7 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
 
     client.enabled = true;
     client.updatedAt = new Date();
+    if (!client.address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route add ${client.address}/32 dev wg0`);
 
     await this.saveConfig();
   }
@@ -269,6 +284,7 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
 
     client.enabled = false;
     client.updatedAt = new Date();
+    if (!client.address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route del ${client.address}/32 dev wg0`);
 
     await this.saveConfig();
   }
@@ -289,6 +305,8 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
       throw new ServerError(`Invalid Address: ${address}`, 400);
     }
 
+    if (!client.address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route del ${client.address}/32 dev wg0`);
+    if (!address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route add ${address}/32 dev wg0`);
     client.address = address;
     client.updatedAt = new Date();
 

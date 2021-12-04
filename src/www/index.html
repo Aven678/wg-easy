@@ -418,7 +418,7 @@
         </div>
       </div>
 
-      <div v-if="authenticated === false">
+      <div v-else-if="authenticated === false">
         <h1 class="text-4xl font-medium my-16 text-gray-700 text-center">WireGuard</h1>
 
         <form @submit="login" class="shadow rounded-md bg-white mx-auto w-64 p-5 overflow-hidden mt-10">
@@ -451,7 +451,7 @@
         </form>
       </div>
 
-      <div v-if="authenticated === null" class="text-gray-300 pt-24 pb-12">
+      <div v-else="authenticated === null" class="text-gray-300 pt-24 pb-12">
 
         <svg class="w-5 animate-spin mx-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
           fill="currentColor">
@@ -466,9 +466,9 @@
     </div>
 
     <p class="text-center m-10 text-gray-300 text-xs">Made by <a target="_blank" class="hover:underline"
-        href="https://emilenijssen.nl/?ref=wg-easy">Emile Nijssen</a> · <a class="hover:underline"
-        href="https://github.com/sponsors/WeeJeWel" target="_blank">Donate</a> · <a class="hover:underline"
-        href="https://github.com/weejewel/wg-easy" target="_blank">GitHub</a></p>
+      href="https://www.justaven.xyz">Aven</a> (based on the project of<a target="_blank" class="hover:underline"
+        href="https://emilenijssen.nl/?ref=wg-easy">Emile Nijssen</a>) · <a class="hover:underline"
+        href="https://github.com/Aven678" target="_blank">GitHub</a></p>
 
 
   </div>

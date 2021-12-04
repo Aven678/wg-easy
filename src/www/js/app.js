@@ -11,7 +11,7 @@ new Vue({
     apexchart: VueApexCharts,
   },
   data: {
-    authenticated: null,
+    authenticated: false,
     authenticating: false,
     password: null,
     requiresPassword: null,
