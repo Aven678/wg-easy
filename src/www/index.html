@@ -418,7 +418,7 @@
         </div>
       </div>
 
-      <div v-else-if="authenticated === false">
+      <div v-if="authenticated === false">
         <h1 class="text-4xl font-medium my-16 text-gray-700 text-center">WireGuard</h1>
 
         <form @submit="login" class="shadow rounded-md bg-white mx-auto w-64 p-5 overflow-hidden mt-10">
