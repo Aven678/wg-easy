@@ -2,19 +2,29 @@
   "release": 4,
   "name": "wg-easy",
   "version": "1.0.0",
-  "description": "",
+  "node_deb": {
+    "entrypoints": {
+      "daemon":"start.sh",
+      "dependencies":"nodejs, wireguard-tools",
+      "install_strategy":"auto",
+      "user":"root",
+      "group":"root"
+    }
+  },
+  "description": "WebUI Interface to manage your WireGuard clients",
   "main": "server.js",
   "scripts": {
     "serve": "DEBUG=Server,WireGuard nodemon server.js",
     "serve-with-password": "PASSWORD=wg npm run serve",
     "lint": "eslint ."
   },
-  "author": "Emile Nijssen",
+  "author": "Matthieu VE",
   "license": "GPL",
   "dependencies": {
     "debug": "^4.3.1",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "node-deb": "^0.10.7",
     "qrcode": "^1.4.4",
     "uuid": "^8.3.2"
   },
