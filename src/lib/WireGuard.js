@@ -10,6 +10,8 @@ const QRCode = require('qrcode');
 const Util = require('./Util');
 const ServerError = require('./ServerError');
 
+const interface = await Util.exec("ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1")
+
 const {
   WG_PATH,
   WG_HOST,
@@ -60,7 +62,7 @@ module.exports = class WireGuard {
         await Util.exec('echo 1 >> /proc/sys/net/ipv4/conf/all/proxy_arp');
 
         if (WG_NAT) {
-          await Util.exec(`iptables -t nat -A POSTROUTING -s ${WG_DEFAULT_ADDRESS.replace('x', '0')}/24 -o ens3 -j MASQUERADE`);
+          await Util.exec(`iptables -t nat -A POSTROUTING -s ${WG_DEFAULT_ADDRESS.replace('x', '0')}/24 -o ${interface} -j MASQUERADE`);
           await Util.exec('iptables -A INPUT -p udp -m udp --dport 51820 -j ACCEPT');
           await Util.exec('iptables -A FORWARD -i wg0 -j ACCEPT');
           await Util.exec('iptables -A FORWARD -o wg0 -j ACCEPT');
