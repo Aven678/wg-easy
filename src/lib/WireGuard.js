@@ -263,7 +263,7 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
 
   async deleteClient({ clientId }) {
     const config = await this.getConfig();
-    if (!client.address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route del ${client.address}/32 dev wg0`);
+    if (!config.clients[clientId].address.startsWith(`${WG_DEFAULT_ADDRESS.replace('x', '')}`)) Util.exec(`ip route del ${config.clients[clientId].address}/32 dev wg0`);
 
     if (config.clients[clientId]) {
       delete config.clients[clientId];
