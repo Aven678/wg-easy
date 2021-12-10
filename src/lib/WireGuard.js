@@ -10,8 +10,6 @@ const QRCode = require('qrcode');
 const Util = require('./Util');
 const ServerError = require('./ServerError');
 
-const WAN_INTERFACE = await Util.exec("ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1")
-
 const {
   WG_PATH,
   WG_HOST,
@@ -20,7 +18,8 @@ const {
   WG_DEFAULT_DNS,
   WG_DEFAULT_ADDRESS,
   WG_PERSISTENT_KEEPALIVE,
-  WG_ALLOWED_IPS
+  WG_ALLOWED_IPS,
+  WAN_INTERFACE
 } = require('../config');
 
 module.exports = class WireGuard {
